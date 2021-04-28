@@ -1,5 +1,6 @@
 # imports
 import smtplib
+import ssl
 import time
 import logging
 import praw
@@ -99,23 +100,26 @@ def send_email(keyword, reddit_post):
     global app_info
     sender_email = app_info[3]
     receiver_email = app_info[4]
+    sender_email_password = app_info[5]
 
-    port = 1025
+    port = 465
+    context = ssl.create_default_context()
     msg_text = f"""\
-    VinylScraper is doing its job!  Found a post:
+VinylScraper is doing its job!  Found a post:
 
-    Post title: {reddit_post.title}
+Post title: {reddit_post.title}
 
-    Url in post: {reddit_post.url}"""
+Url in post: {reddit_post.url}"""
 
     msg = MIMEText(msg_text)
     msg['Subject'] = f'VinylScraper: Match found! ({keyword})'
     msg['From'] = sender_email
     msg['To'] = receiver_email
 
-    with smtplib.SMTP('localhost', port) as server:
+    with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as server:
+        server.login(sender_email, sender_email_password)
         server.sendmail(sender_email, [receiver_email], msg.as_string())
-        print(f'Successfully sent email on match: {keyword}')
+        logging.info(f'Successfully sent email on match: {keyword}')
 
 
 def get_uptime(start_time):
