@@ -1,12 +1,10 @@
 # imports
 import smtplib
-import ssl
 import time
 import logging
 import praw
 
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 
 # class used to store the keyword and time found for alerting
@@ -98,34 +96,26 @@ def should_alert(keyword):
 
 # sends the email
 def send_email(keyword, reddit_post):
-    port = 465  # For SSL
-    password = app_info[5]
+    global app_info
     sender_email = app_info[3]
     receiver_email = app_info[4]
-    message = MIMEMultipart("alternative")
-    message["Subject"] = f"VinylScraper found a keyword: {keyword}"
-    message["From"] = sender_email
-    message["To"] = receiver_email
 
-    text = f"""\
-VinylScraper is doing its job!  Found a post:
+    port = 1025
+    msg_text = f"""\
+    VinylScraper is doing its job!  Found a post:
 
-Post title: {reddit_post.title}
+    Post title: {reddit_post.title}
 
-Url in post: {reddit_post.url}"""
+    Url in post: {reddit_post.url}"""
 
-    # Turn message into plain/html MIMEText object
-    plain_text = MIMEText(text, "plain")
+    msg = MIMEText(msg_text)
+    msg['Subject'] = f'VinylScraper: Match found! ({keyword})'
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
 
-    # Add plain-text part to MIMEMultipart message
-    message.attach(plain_text)
-
-    # Create a secure SSL context
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
+    with smtplib.SMTP('localhost', port) as server:
+        server.sendmail(sender_email, [receiver_email], msg.as_string())
+        print(f'Successfully sent email on match: {keyword}')
 
 
 def get_uptime(start_time):
@@ -170,6 +160,7 @@ def main():
             time.sleep(SLEEP_INTERVAL_S)
         except Exception as e:
             logging.error(f'Exception caught in main loop:\n{e}')
+            quit()
 
 
 if __name__ == "__main__":
