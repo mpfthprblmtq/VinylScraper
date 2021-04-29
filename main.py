@@ -1,27 +1,17 @@
 # imports
-import smtplib
-import ssl
 import time
 import logging
-import praw
 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-
-# class used to store the keyword and time found for alerting
-class Found:
-    def __init__(self, keyword, time_found):
-        self.keyword = keyword
-        self.time_found = time_found
+from objects.found import Found
+from services.email_service import EmailService
+from services.reddit_service import RedditService
+from services.alert_service import AlertService
 
 
 # globals
 app_info = []
 keyword_list = []
-already_alerted = []
-SLEEP_INTERVAL_S = 300
-ALERT_COOLDOWN_S = 3600
+SLEEP_INTERVAL_M = 5
 
 # logging config
 LOGGING_LEVEL = logging.INFO
@@ -47,7 +37,8 @@ def read_app_info():
     sender_email = clean_string(f.readline(), 13)
     receiving_email = clean_string(f.readline(), 16)
     sender_email_password = clean_string(f.readline(), 22)
-    app_info = [client_id, client_secret, user_agent, sender_email, receiving_email, sender_email_password]
+    subreddits = clean_string(f.readline(), 11)
+    app_info = [client_id, client_secret, user_agent, sender_email, receiving_email, sender_email_password, subreddits]
 
 
 # reads in the keywords.txt file to get all the words to look out for
@@ -59,73 +50,15 @@ def read_keywords():
         keyword_list.append(clean_string(line, 0))
 
 
-# actually makes the call to reddit
-def make_call(reddit, subreddit):
-    return reddit.subreddit(subreddit).new(limit=10)
-
-
-# looks for any keyword in the title of the post
-def find_keyword(title, keywords):
-    for keyword in keywords:
+# looks for any keyword in the title or description of the post
+def find_keyword(title, description):
+    global keyword_list
+    for keyword in keyword_list:
         if keyword in title:
             return keyword
-
-
-def has_already_alerted(keyword):
-    global already_alerted
-    for x in already_alerted:
-        if x.keyword == keyword:
-            return x
-    return None
-
-
-# checks to see if we've already alerted
-def should_alert(keyword):
-    global already_alerted
-    x = has_already_alerted(keyword)    # check to see if we've already sent an alert on this
-    if x is not None:
-        # we have already alerted, check if we're in the cooldown
-        if time.time() - x.time_found > ALERT_COOLDOWN_S:
-            # we are outside of the cooldown period
-            already_alerted.remove(x)
-            return True
-        else:
-            return False
-    else:
-        # keyword wasn't in the already_alerted array, we should alert
-        return True
-
-
-# sends the email
-def send_email(keyword, reddit_post):
-    port = 465  # For SSL
-    password = app_info[5]
-    sender_email = app_info[3]
-    receiver_email = app_info[4]
-    message = MIMEMultipart("alternative")
-    message["Subject"] = f"VinylScraper found a keyword: {keyword}"
-    message["From"] = sender_email
-    message["To"] = receiver_email
-
-    text = f"""\
-VinylScraper is doing its job!  Found a post:
-
-Post title: {reddit_post.title}
-
-Url in post: {reddit_post.url}"""
-
-    # Turn message into plain/html MIMEText object
-    plain_text = MIMEText(text, "plain")
-
-    # Add plain-text part to MIMEMultipart message
-    message.attach(plain_text)
-
-    # Create a secure SSL context
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
+        if description != '':
+            if keyword in description:
+                return keyword
 
 
 def get_uptime(start_time):
@@ -140,36 +73,41 @@ def main():
     # populate globals
     read_app_info()
     read_keywords()
-    global already_alerted
 
-    # create reddit instance
-    reddit = praw.Reddit(
-        client_id=app_info[0],
-        client_secret=app_info[1],
-        user_agent=app_info[2])
+    # initialize services
+    global app_info
+    reddit_service = RedditService(app_info[0], app_info[1], app_info[2])
+    email_service = EmailService(app_info[4], app_info[3], app_info[5])
+    alert_service = AlertService()
 
     # get the start time
     start_time = time.time()
 
+    subreddits = app_info[6].split(',')
+
     # do the loop de loop
     while True:
         try:
-            posts = make_call(reddit, 'VinylReleases')
-            for post in posts:
-                found_keyword = find_keyword(post.title, keyword_list)
-
-                # check to see if we found a match
-                if found_keyword is not None:
-                    if should_alert(found_keyword):
-                        logging.info(f"Match found ({found_keyword}), sending email!")
-                        send_email(found_keyword, post)
-                        already_alerted.append(Found(found_keyword, time.time()))
+            # traverse through the subreddits in app_info
+            for subreddit in subreddits:
+                # get the posts
+                posts = reddit_service.get_new_posts(subreddit, 10)
+                # traverse through all the posts we got
+                for post in posts:
+                    # check to see if we found a match
+                    found_keyword = find_keyword(post.title, post.selftext)
+                    if found_keyword is not None:
+                        if alert_service.should_alert(found_keyword, post.title):
+                            logging.info(f"{'Main()'.ljust(15)} : Match found ({found_keyword}), sending email!")
+                            email_service.send_email(found_keyword, post)
+                            alert_service.already_alerted.append(Found(found_keyword, time.time()))
 
             # sleepy sleep
-            logging.info(f"{get_uptime(start_time).ljust(15)} : Sleeping for {SLEEP_INTERVAL_S} seconds...")
-            time.sleep(SLEEP_INTERVAL_S)
+            logging.info(f"{get_uptime(start_time).ljust(15)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")
+            time.sleep(SLEEP_INTERVAL_M * 60)
         except Exception as e:
             logging.error(f'Exception caught in main loop:\n{e}')
+            quit()
 
 
 if __name__ == "__main__":

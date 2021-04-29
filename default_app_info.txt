@@ -4,3 +4,4 @@ user_agent=
 sender_email=
 receiving_email=
 sender_email_password=
+subreddits=
