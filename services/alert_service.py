@@ -3,7 +3,7 @@ import time
 
 class AlertService:
     already_alerted = []
-    ALERT_COOLDOWN_S = 3600
+    ALERT_COOLDOWN_S = 14400
 
     def __init__(self):
         pass

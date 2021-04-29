@@ -6,12 +6,13 @@ from objects.found import Found
 from services.email_service import EmailService
 from services.reddit_service import RedditService
 from services.alert_service import AlertService
+from services.uptime_service import UptimeService
 
 
 # globals
 app_info = []
 keyword_list = []
-SLEEP_INTERVAL_M = 5
+SLEEP_INTERVAL_M = 10
 
 # logging config
 LOGGING_LEVEL = logging.INFO
@@ -54,22 +55,11 @@ def read_keywords():
 def find_keyword(title, description):
     global keyword_list
     for keyword in keyword_list:
-        if keyword in title:
+        if keyword.lower() in title.lower():
             return keyword
         if description != '':
-            if keyword in description:
+            if keyword.lower() in description.lower():
                 return keyword
-
-
-def get_uptime(start_time):
-    uptime_seconds = time.time() - start_time
-    uptime_h = uptime_seconds // 3600
-    uptime_m = uptime_seconds // 60
-    if uptime_h > 0:
-        uptime_m = uptime_m - (uptime_h * 60)
-
-    uptime_s = uptime_seconds - (uptime_m * 60)
-    return str(int(uptime_h)) + "h " + str(int(uptime_m)) + "m " + str(int(uptime_s)) + "s"
 
 
 def main():
@@ -80,12 +70,14 @@ def main():
     # initialize services
     global app_info
     reddit_service = RedditService(app_info[0], app_info[1], app_info[2])
-    email_service = EmailService(app_info[4], app_info[3], app_info[5])
+    email_service = EmailService(app_info[4], app_info[3], app_info[5], app_info[2])
     alert_service = AlertService()
+    uptime_service = UptimeService(time.time())  # populates the uptime service with the current time for start time
 
-    # get the start time
-    start_time = time.time()
+    # send startup notification
+    email_service.send_startup_email()
 
+    # get the subreddits we want to search for
     subreddits = app_info[6].split(',')
 
     # do the loop de loop
@@ -101,16 +93,17 @@ def main():
                     found_keyword = find_keyword(post.title, post.selftext)
                     if found_keyword is not None:
                         if alert_service.should_alert(found_keyword, post.title):
-                            logging.info(f"{'Main()'.ljust(15)} : Match found ({found_keyword}), sending email!")
-                            email_service.send_email(found_keyword, post)
+                            logging.info(f"{'Main'.ljust(12)} : Match found ({found_keyword}), sending email!")
+                            email_service.send_match_email(found_keyword, post)
                             alert_service.already_alerted.append(Found(found_keyword, time.time()))
 
             # sleepy sleep
-            logging.info(f"{get_uptime(start_time).ljust(15)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")
+            logging.info(f"{uptime_service.get().ljust(12)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")
             time.sleep(SLEEP_INTERVAL_M * 60)
         except Exception as e:
             logging.error(f'Exception caught in main loop:\n{e}')
             logging.error(f'{e.with_traceback()}')
+            email_service.send_shutdown_email(e, uptime_service.get())
             quit()
 
 
