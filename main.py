@@ -17,7 +17,7 @@ SLEEP_INTERVAL_M = 10
 # logging config
 LOGGING_LEVEL = logging.INFO
 FORMAT = '[%(asctime)s] %(levelname)-7s %(message)s'
-logging.basicConfig(level=LOGGING_LEVEL, format=FORMAT)
+logging.basicConfig(level=LOGGING_LEVEL, format=FORMAT, filename='log.log')
 
 
 # cleans the string

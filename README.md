@@ -1,7 +1,7 @@
 # VinylScraper
 
 ### What is it
-A scraping bot used to get the newest reddit posts on r/VinylReleases.
+A scraping bot used to get the newest reddit posts on a few different subreddits.
 
 ### How to use it
 Follow the instructions laid out [here](https://towardsdatascience.com/scraping-reddit-data-1c0af3040768) in the "Getting Started" section.  When you have the client_id, secret, and name, throw those values in the `default_app_info.txt` for the client_id, client_secret, and user_agent, respectively.
