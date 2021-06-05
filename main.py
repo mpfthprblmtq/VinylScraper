@@ -7,7 +7,7 @@ from services.email_service import EmailService
 from services.reddit_service import RedditService
 from services.alert_service import AlertService
 from services.uptime_service import UptimeService
-
+from services.post_analyzer_service import PostAnalyzerService
 
 # globals
 app_info = []
@@ -25,6 +25,15 @@ def clean_string(s, start_index):
     s = s.replace('\n', '')
     s = s[start_index:len(s)]
     return s
+
+
+# custom pretty print function to return a nice string representation of an array
+def prettify_array(arr):
+    res = ""
+    for e in arr:
+        res += e + ", "
+    res = res[0: len(res) - 2]
+    return res
 
 
 # reads in the app info
@@ -51,17 +60,6 @@ def read_keywords():
         keyword_list.append(clean_string(line, 0))
 
 
-# looks for any keyword in the title or description of the post
-def find_keyword(title, description):
-    global keyword_list
-    for keyword in keyword_list:
-        if keyword.lower() in title.lower():
-            return keyword
-        if description != '':
-            if keyword.lower() in description.lower():
-                return keyword
-
-
 def main():
     # populate globals
     read_app_info()
@@ -69,9 +67,11 @@ def main():
 
     # initialize services
     global app_info
+    global keyword_list
     reddit_service = RedditService(app_info[0], app_info[1], app_info[2])
     email_service = EmailService(app_info[4], app_info[3], app_info[5], app_info[2])
     alert_service = AlertService()
+    post_analyzer_service = PostAnalyzerService(keyword_list)
     uptime_service = UptimeService(time.time())  # populates the uptime service with the current time for start time
 
     # send startup notification
@@ -89,13 +89,19 @@ def main():
                 posts = reddit_service.get_new_posts(subreddit, 10)
                 # traverse through all the posts we got
                 for post in posts:
-                    # check to see if we found a match
-                    found_keyword = find_keyword(post.title, post.selftext)
-                    if found_keyword is not None:
-                        if alert_service.should_alert(found_keyword, post.title):
-                            logging.info(f"{'Main'.ljust(12)} : Match found ({found_keyword}), sending email!")
-                            email_service.send_match_email(found_keyword, post)
-                            alert_service.already_alerted.append(Found(found_keyword, time.time()))
+                    # check to see if we found a match (or matches)
+                    found_keywords = post_analyzer_service.find_keyword(post.title, post.selftext)
+                    # found_keyword = find_keyword(post.title, post.selftext)
+                    if found_keywords:
+                        if alert_service.should_alert(found_keywords, post.title):
+                            # log what we found
+                            logging.info(f"{'Main'.ljust(12)} : Match found ({prettify_array(found_keywords)}), "
+                                         f"sending email!")
+                            # send the email
+                            email_service.send_match_email(prettify_array(found_keywords), post)
+                            # put all matched keywords in the already alerted array
+                            for keyword in found_keywords:
+                                alert_service.already_alerted.append(Found(keyword, time.time()))
 
             # sleepy sleep
             logging.info(f"{uptime_service.get().ljust(12)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")

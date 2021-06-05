@@ -16,21 +16,25 @@ class AlertService:
 
     # checks to see if we've already alerted
     # or if we should alert
-    def should_alert(self, keyword, title):
+    def should_alert(self, keywords, title):
 
         # we don't want any vinyl collectors posts starting with [Wanted]
         if str(title).startswith('[Wanted]'):
             return False
 
-        x = self.has_already_alerted(keyword)  # check to see if we've already sent an alert on this
-        if x is not None:
-            # we have already alerted, check if we're in the cooldown
-            if time.time() - x.time_found > self.ALERT_COOLDOWN_S:
-                # we are outside of the cooldown period
-                self.already_alerted.remove(x)
-                return True
+        should_alert = False
+        for keyword in keywords:
+            x = self.has_already_alerted(keyword)  # check to see if we've already sent an alert on this
+            if x is not None:
+                # we have already alerted, check if we're in the cooldown
+                if time.time() - x.time_found > self.ALERT_COOLDOWN_S:
+                    # we are outside of the cooldown period
+                    self.already_alerted.remove(x)
+                    should_alert = True
+                else:
+                    # we are still in the cooldown period, don't alert just yet
+                    should_alert = False
             else:
-                return False
-        else:
-            # keyword wasn't in the already_alerted array, we should alert
-            return True
+                # keyword wasn't in the already_alerted array, we should alert
+                should_alert = True
+        return should_alert
