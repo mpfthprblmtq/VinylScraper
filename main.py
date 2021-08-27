@@ -68,11 +68,11 @@ def main():
     # initialize services
     global app_info
     global keyword_list
+    uptime_service = UptimeService(time.time())  # populates the uptime service with the current time for start time
     reddit_service = RedditService(app_info[0], app_info[1], app_info[2])
-    email_service = EmailService(app_info[4], app_info[3], app_info[5], app_info[2])
+    email_service = EmailService(app_info[4], app_info[3], app_info[5], app_info[2], uptime_service)
     alert_service = AlertService()
     post_analyzer_service = PostAnalyzerService(keyword_list)
-    uptime_service = UptimeService(time.time())  # populates the uptime service with the current time for start time
 
     # send startup notification
     email_service.send_startup_email()
@@ -91,26 +91,37 @@ def main():
                 for post in posts:
                     # check to see if we found a match (or matches)
                     found_keywords = post_analyzer_service.find_keyword(post.title, post.selftext)
-                    # found_keyword = find_keyword(post.title, post.selftext)
                     if found_keywords:
                         if alert_service.should_alert(found_keywords, post.title):
                             # log what we found
-                            logging.info(f"{'Main'.ljust(12)} : Match found ({prettify_array(found_keywords)}), "
+                            logging.info(f"{'Main'.ljust(18)} : Match found ({prettify_array(found_keywords)}), "
                                          f"sending email!")
-                            # send the email
+                            # send the match email
                             email_service.send_match_email(prettify_array(found_keywords), post)
                             # put all matched keywords in the already alerted array
                             for keyword in found_keywords:
                                 alert_service.already_alerted.append(Found(keyword, time.time()))
 
             # sleepy sleep
-            logging.info(f"{uptime_service.get().ljust(12)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")
+            logging.info(f"{uptime_service.get().ljust(18)} : Sleeping for {SLEEP_INTERVAL_M} minutes...")
             time.sleep(SLEEP_INTERVAL_M * 60)
         except Exception as e:
-            logging.error(f'Exception caught in main loop:\n{e}')
-            logging.error(f'{e.with_traceback()}')
-            email_service.send_shutdown_email(e, uptime_service.get())
-            quit()
+            if e.response.status_code == 401:
+                # check if it's a 401, which is probably just a config issue
+                logging.error(f'Received a 401 response code from reddit')
+                email_service.send_shutdown_email(e)
+                time.sleep(10)
+                quit()
+            elif e.response.status_code == 503:
+                # check if it's a 503, which means reddit is down
+                logging.error(f'Received a 503 response code from reddit')
+                # we just want to continue in this case, because reddit will be up again soon... right?
+            else:
+                logging.error(f'Unknown exception caught in main loop:')
+                logging.error(f'{e}')
+                email_service.send_shutdown_email(e)
+                time.sleep(10)
+                quit()
 
 
 if __name__ == "__main__":

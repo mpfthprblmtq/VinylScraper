@@ -3,10 +3,11 @@ import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
+import platform
 
 
 # returns formatted html for a match email
-def get_match_html(post):
+def get_match_html(post, uptime):
     title = post.title
     url = post.url
     description = post.selftext
@@ -23,6 +24,8 @@ def get_match_html(post):
             <p><b>Post title:</b><br> {title}<p>
             <p><b>{url_header}</b><br> {url}</p>
             <p><b>Post Description:</b><br> {description}</p>
+            <br>
+            <p><b>Uptime:</b> {uptime}</p>
         </body>
     </html>
     """
@@ -37,7 +40,7 @@ def get_startup_html():
     <html>
         <head></head>
         <body>
-            <h3>Vinyl Scraper started up!</h3>
+            <h3>Vinyl Scraper started up! ({platform.system()})</h3>
             <p><b>Start time:</b> {dt_string}</p>
         </body>
     </html>
@@ -57,7 +60,7 @@ def get_shutdown_html(e, uptime):
             <p><b>Uptime:</b> {uptime}</p>
             <br>
             <p><b>Exception Details:<b></p>
-            <p>{e.with_traceback()}</p>
+            <p>{e}</p>
         </body>
     </html>
     """
@@ -68,15 +71,16 @@ class EmailService:
     port = 465
 
     # __init__
-    def __init__(self, receiver_email, sender_email, sender_email_password, user_agent):
+    def __init__(self, receiver_email, sender_email, sender_email_password, user_agent, uptime_service):
         self.receiver_email = receiver_email
         self.sender_email = sender_email
         self.sender_email_password = sender_email_password
         self.user_agent = user_agent
+        self.uptime_service = uptime_service
 
     # sends the email
     def send_match_email(self, keyword, post):
-        msg_html = get_match_html(post)
+        msg_html = get_match_html(post, self.uptime_service.get())
 
         msg = MIMEMultipart()
         msg['Subject'] = f'VinylScraper: Match found! ({keyword})'
@@ -87,7 +91,7 @@ class EmailService:
         with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
             server.login(self.sender_email, self.sender_email_password)
             server.sendmail(self.sender_email, [self.receiver_email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(12)} : Successfully sent email on match: {keyword}')
+            logging.info(f'{"EmailService".ljust(18)} : Successfully sent email on match: {keyword}')
 
     # sends an email on startup
     def send_startup_email(self):
@@ -102,11 +106,11 @@ class EmailService:
         with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
             server.login(self.sender_email, self.sender_email_password)
             server.sendmail(self.sender_email, [self.receiver_email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(12)} : Successfully sent startup email')
+            logging.info(f'{"EmailService".ljust(18)} : Successfully sent startup email')
 
     # sends an email on shutdown
-    def send_shutdown_email(self, e, uptime):
-        msg_html = get_shutdown_html(e, uptime)
+    def send_shutdown_email(self, e):
+        msg_html = get_shutdown_html(e, self.uptime_service.get())
 
         msg = MIMEMultipart()
         msg['Subject'] = f'VinylScraper: Shutdown'
@@ -117,5 +121,5 @@ class EmailService:
         with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
             server.login(self.sender_email, self.sender_email_password)
             server.sendmail(self.sender_email, [self.receiver_email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(12)} : Successfully sent shutdown email')
+            logging.info(f'{"EmailService".ljust(18)} : Successfully sent shutdown email')
             server.quit()
