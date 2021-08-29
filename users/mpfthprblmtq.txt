@@ -1,9 +1,13 @@
+username=mpfthprblmtq
+email=ripley307,gmail,com
+url=https://store.louisthechild.com/,Kids At Play,Kids At Play
+subreddits=VinylReleases,VinylCollectors,VinylDeals
+keywords=
 Mat Zo
 Apashe
 Deadmau5
 Devin Townsend
 Casualties of Cool
-Polyphia
 Porter Robinson
 Madeon
 Andrew Belle
@@ -13,13 +17,9 @@ Said the Sky
 Flume
 Illenium
 Yoe Mase
-An Unfiltered Stream of Consciousness
 Mako
 Twenty One Pilots
-Scaled and Icy
 Imagine Dragons
-Stromae
-Lauv
 Atoms for Peace
 Biffy Clyro
 Bloc Party
@@ -27,7 +27,6 @@ Ekali
 Eden
 Grabbitz
 Lindemann
-Metrik
 Mitis
 Missio
 Raleigh Ritchie
@@ -36,3 +35,4 @@ Emmit Fenn
 Crywolf
 Dead Battery
 Odesza
+apexapian
