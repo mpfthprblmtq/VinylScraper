@@ -1,6 +1,5 @@
 # project specific
 app_info.txt
-keywords.txt
 
 # Environments
 .env

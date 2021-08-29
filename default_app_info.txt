@@ -2,6 +2,5 @@ client_id=
 client_secret=
 user_agent=
 sender_email=
-receiving_email=
 sender_email_password=
-subreddits=
+maintenance_email=
