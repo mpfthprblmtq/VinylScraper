@@ -1,4 +1,3 @@
-import logging
 import time
 from objects.found import Found
 from utils.string_utils import string_found, remove_duplicates, prettify_array
@@ -19,10 +18,11 @@ def find_keyword(title, description, keywords):
 
 class PostAnalyzerService:
 
-    def __init__(self, reddit_service, alert_service, email_service):
+    def __init__(self, reddit_service, alert_service, email_service, logger):
         self.reddit_service = reddit_service
         self.alert_service = alert_service
         self.email_service = email_service
+        self.logger = logger
 
     # analyzes the posts
     # for each subreddit
@@ -39,10 +39,9 @@ class PostAnalyzerService:
                     # check to see if we should alert
                     if self.alert_service.should_alert_on_reddit_post(found_keywords, post.title):
                         # log what we found
-                        logging.info(f"{'Main'.ljust(18)} : Match found ({prettify_array(found_keywords)}), "
-                                     f"sending email!")
+                        self.logger.info('PostService', f'Match found ({prettify_array(found_keywords)}), sending email!')
                         # send the match email
-                        self.email_service.send_reddit_match_email(prettify_array(found_keywords), post, user.email)
+                        self.email_service.send_reddit_match_email(prettify_array(found_keywords), post, user)
                         # put all matched keywords in the already alerted array
                         for keyword in found_keywords:
                             self.alert_service.already_alerted_reddit.append(Found(keyword, time.time()))

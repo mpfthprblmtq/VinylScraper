@@ -1,5 +1,4 @@
 import smtplib
-import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
@@ -89,69 +88,67 @@ class EmailService:
     port = 465
 
     # __init__
-    def __init__(self, sender_email, sender_email_password, user_agent, uptime_service):
+    def __init__(self, sender_email, sender_email_password, user_agent, uptime_service, logger):
         self.sender_email = sender_email
         self.sender_email_password = sender_email_password
         self.user_agent = user_agent
         self.uptime_service = uptime_service
+        self.logger = logger
+
+    # actually sends the email
+    def send_email(self, email, subject, message_html):
+        # build the email
+        msg = MIMEMultipart()
+        msg['Subject'] = subject
+        msg['From'] = self.user_agent + ' ' + self.sender_email
+        msg['To'] = email
+        msg.attach(MIMEText(message_html, 'html'))
+
+        # send the email
+        with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
+            server.login(self.sender_email, self.sender_email_password)
+            return server.sendmail(self.sender_email, [email], msg.as_string())
 
     # sends reddit match email
     def send_reddit_match_email(self, keyword, post, user):
-        msg_html = get_reddit_match_html(post, self.uptime_service.get())
+        message_html = get_reddit_match_html(post, self.uptime_service.get())
+        subject = f'VinylScraper: Match found! ({keyword})'
 
-        msg = MIMEMultipart()
-        msg['Subject'] = f'VinylScraper: Match found! ({keyword})'
-        msg['From'] = self.user_agent + ' ' + self.sender_email
-        msg['To'] = user.email
-        msg.attach(MIMEText(msg_html, 'html'))
-
-        with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
-            server.login(self.sender_email, self.sender_email_password)
-            server.sendmail(self.sender_email, [user.email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(18)} : Successfully sent email on match: {keyword}')
+        res = self.send_email(user.email, subject, message_html)
+        if res == {}:
+            self.logger.info('EmailService', f'Successfully sent email on reddit match: {keyword}')
+        else:
+            self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
 
     # sends page match email
     def send_page_match_email(self, search, user):
-        msg_html = get_page_match_html(search, user, self.uptime_service.get())
+        message_html = get_page_match_html(search, user, self.uptime_service.get())
+        subject = f'VinylScraper: An item is available! ({search.product})'
 
-        msg = MIMEMultipart()
-        msg['Subject'] = f'VinylScraper: An item is available! ({search.product})'
-        msg['From'] = self.user_agent + ' ' + self.sender_email
-        msg['To'] = user.email
-        msg.attach(MIMEText(msg_html, 'html'))
-
-        with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
-            server.login(self.sender_email, self.sender_email_password)
-            server.sendmail(self.sender_email, [user.email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(18)} : Successfully sent email on match: {search.product}')
+        res = self.send_email(user.email, subject, message_html)
+        if res == {}:
+            self.logger.info('EmailService', f'Successfully sent email on page match: {search.product}')
+        else:
+            self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
 
     # sends an email on startup
-    def send_startup_email(self, receiver_email):
-        msg_html = get_startup_html()
+    def send_startup_email(self, email):
+        message_html = get_startup_html()
+        subject = f'VinylScraper: Startup'
 
-        msg = MIMEMultipart()
-        msg['Subject'] = f'VinylScraper: Startup'
-        msg['From'] = self.user_agent + ' ' + self.sender_email
-        msg['To'] = receiver_email
-        msg.attach(MIMEText(msg_html, 'html'))
-
-        with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
-            server.login(self.sender_email, self.sender_email_password)
-            server.sendmail(self.sender_email, [receiver_email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(18)} : Successfully sent startup email')
+        res = self.send_email(email, subject, message_html)
+        if res == {}:
+            self.logger.info('EmailService', f'Successfully sent startup email')
+        else:
+            self.logger.error('EmailService', f'Error in sending startup email: {res}')
 
     # sends an email on shutdown
-    def send_shutdown_email(self, e, receiver_email):
-        msg_html = get_shutdown_html(e, self.uptime_service.get())
+    def send_shutdown_email(self, e, email):
+        message_html = get_shutdown_html(e, self.uptime_service.get())
+        subject = f'VinylScraper: Shutdown'
 
-        msg = MIMEMultipart()
-        msg['Subject'] = f'VinylScraper: Shutdown'
-        msg['From'] = self.user_agent + ' ' + self.sender_email
-        msg['To'] = receiver_email
-        msg.attach(MIMEText(msg_html, 'html'))
-
-        with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
-            server.login(self.sender_email, self.sender_email_password)
-            server.sendmail(self.sender_email, [receiver_email], msg.as_string())
-            logging.info(f'{"EmailService".ljust(18)} : Successfully sent shutdown email')
-            server.quit()
+        res = self.send_email(email, subject, message_html)
+        if res == {}:
+            self.logger.info('EmailService', f'Successfully sent shutdown email')
+        else:
+            self.logger.error('EmailService', f'Error in sending shutdown email: {res}')
