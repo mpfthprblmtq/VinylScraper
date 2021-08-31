@@ -1,5 +1,5 @@
 import time
-from objects.found import Found
+from objects.found_item import FoundItem
 from utils.string_utils import string_found, remove_duplicates, prettify_array
 
 
@@ -44,4 +44,4 @@ class PostAnalyzerService:
                         self.email_service.send_reddit_match_email(prettify_array(found_keywords), post, user)
                         # put all matched keywords in the already alerted array
                         for keyword in found_keywords:
-                            self.alert_service.already_alerted_reddit.append(Found(keyword, time.time()))
+                            self.alert_service.already_alerted_reddit.append(FoundItem(keyword, time.time()))

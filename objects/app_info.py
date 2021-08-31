@@ -1,7 +1,10 @@
+# utils
 from utils.string_utils import clean_string, join_email
 
 
 # object used to define app information
+# reads the app_info.txt file and uses some string utilities to populate itself
+# check out the readme for more detailed information
 class AppInfo:
 
     def __init__(self):

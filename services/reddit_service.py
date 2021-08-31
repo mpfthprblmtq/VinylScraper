@@ -1,6 +1,8 @@
+# imports
 import praw
 
 
+# service class that calls reddit
 class RedditService:
 
     def __init__(self, client_id, client_secret, user_agent):
@@ -11,9 +13,13 @@ class RedditService:
             user_agent=user_agent)
 
     # actually makes the call to reddit for new posts
+    #   subreddit: the subreddit to query
+    #   post_count: the number of posts to limit to
     def get_new_posts(self, subreddit, post_count):
         return self.reddit.subreddit(subreddit).new(limit=post_count)
 
     # actually makes the call to reddit for hot posts
+    #   subreddit: the subreddit to query
+    #   post_count: the number of posts to limit to
     def get_hot_posts(self, subreddit, post_count):
         return self.reddit.subreddit(subreddit).hot(limit=post_count)

@@ -1,11 +1,14 @@
+# imports
 import smtplib
+import platform
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
-import platform
 
 
 # returns formatted html for a match email
+#   post: the reddit post (contains the url, title, and description)
+#   uptime: the current uptime
 def get_reddit_match_html(post, uptime):
     title = post.title
     url = post.url
@@ -32,6 +35,9 @@ def get_reddit_match_html(post, uptime):
 
 
 # returns formatted html for page match email
+#   search: the SearchUrl that we found
+#   user: the User to send the notification to
+#   uptime: the current uptime
 def get_page_match_html(search, user, uptime):
     msg = f"""\
         <html>
@@ -65,6 +71,8 @@ def get_startup_html():
 
 
 # returns formatted html for a shutdown email
+#   e: the exception that occurred
+#   uptime: the current uptime
 def get_shutdown_html(e, uptime):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -83,6 +91,7 @@ def get_shutdown_html(e, uptime):
     """
 
 
+# service class for emailing things
 class EmailService:
     # port for ssl (but not really ssl?)
     port = 465
@@ -96,6 +105,10 @@ class EmailService:
         self.logger = logger
 
     # actually sends the email
+    # returns the result of the send (a dictionary object)
+    #   email: the email to send to
+    #   subject: the subject line of the email
+    #   message_html: the message in html format
     def send_email(self, email, subject, message_html):
         # build the email
         msg = MIMEMultipart()
@@ -110,6 +123,9 @@ class EmailService:
             return server.sendmail(self.sender_email, [email], msg.as_string())
 
     # sends reddit match email
+    #   keyword: the keyword that was found
+    #   post: the post where we found the match
+    #   user: the user that the match was found for
     def send_reddit_match_email(self, keyword, post, user):
         message_html = get_reddit_match_html(post, self.uptime_service.get())
         subject = f'VinylScraper: Match found! ({keyword})'
@@ -121,6 +137,8 @@ class EmailService:
             self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
 
     # sends page match email
+    #   search: the SearchUrl that we found
+    #   user: the user that the match was found for
     def send_page_match_email(self, search, user):
         message_html = get_page_match_html(search, user, self.uptime_service.get())
         subject = f'VinylScraper: An item is available! ({search.product})'
@@ -132,6 +150,7 @@ class EmailService:
             self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
 
     # sends an email on startup
+    #   email: the email to send the startup email to
     def send_startup_email(self, email):
         message_html = get_startup_html()
         subject = f'VinylScraper: Startup'
@@ -143,6 +162,8 @@ class EmailService:
             self.logger.error('EmailService', f'Error in sending startup email: {res}')
 
     # sends an email on shutdown
+    #   e: the exception that caused the shutdown
+    #   email: the email to send the shutdown email to
     def send_shutdown_email(self, e, email):
         message_html = get_shutdown_html(e, self.uptime_service.get())
         subject = f'VinylScraper: Shutdown'

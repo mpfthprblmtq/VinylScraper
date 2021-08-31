@@ -20,11 +20,11 @@ SLEEP_INTERVAL_M = 10
 
 # main function
 def main():
-    uptime_service = UptimeService(time.time())  # populates the uptime service with the current time for start time
-
     # populate globals
     app_info = AppInfo()
-    logger = Logger(uptime_service)
+
+    uptime_service = UptimeService(time.time())     # populates the uptime service with the current time for start time
+    logger = Logger(uptime_service)                 # initialize the logger
 
     # initialize services
     email_service = EmailService(
@@ -83,5 +83,6 @@ def main():
                 quit()
 
 
+# still not 100% sure what this does, but it looks important
 if __name__ == "__main__":
     main()

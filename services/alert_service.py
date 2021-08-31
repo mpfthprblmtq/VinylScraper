@@ -1,7 +1,10 @@
+# imports
 import time
 
 
-# checks the list given to see if the keyword exists in the list
+# checks the list of FoundItems given to see if the item with that keyword exists in the list
+#   keyword: the keyword to look for
+#   alerted_list: the list of FoundItems to search
 def has_already_alerted(keyword, alerted_list):
     for x in alerted_list:
         if x.keyword == keyword:
@@ -9,16 +12,16 @@ def has_already_alerted(keyword, alerted_list):
     return None
 
 
+# service class that keeps track of things we've already alerted on
 class AlertService:
     already_alerted_reddit = []
     already_alerted_pages = []
-    ALERT_COOLDOWN_S = 21600
+    ALERT_COOLDOWN_S = 21600  # 6 hours
 
     def __init__(self):
         pass
 
-    # checks to see if we've already alerted or if we should alert
-    # for reddit posts
+    # checks to see if we've already alerted or if we should alert on reddit post matches
     def should_alert_on_reddit_post(self, keywords, title):
 
         # we don't want any vinyl collectors posts containing [Wanted]
@@ -43,8 +46,7 @@ class AlertService:
                 should_alert = True
         return should_alert
 
-    # checks to see if we've already alerted or if we should alert
-    # for web page searches
+    # checks to see if we've already alerted or if we should alert on web page matches
     def should_alert_on_page_search(self, url):
         should_alert = False
         x = has_already_alerted(url, self.already_alerted_pages)
