@@ -1,23 +1,30 @@
+# imports
 from os import listdir
 from os.path import isfile, join
+
+# objects
 from objects.search_url import SearchUrl
 from objects.user import User
+
+# utils
 from utils.string_utils import clean_string
 
 
-# gets the url object from the string
+# returns a SearchUrl object by splitting the string given on a comma
+#   s: the string to split
 def get_url(s):
     arr = s.split(',')
     return SearchUrl(arr[0], arr[1], arr[2])
 
 
+# service class that allows us to keep track of users within the app
 class UserService:
 
     # __init__
     def __init__(self):
-        self.path = './users/'
+        self.path = './users/'  # the folder that contains the user files
         self.users = []
-        self.init_users()
+        self.init_users()   # init the users
 
     # inits the users
     # scans the users directory and reads in those text files
