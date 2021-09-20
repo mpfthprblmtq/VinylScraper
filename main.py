@@ -36,7 +36,7 @@ def main():
     reddit_service = RedditService(app_info.client_id, app_info.client_secret, app_info.user_agent)
     alert_service = AlertService()
     post_analyzer_service = PostAnalyzerService(reddit_service, alert_service, email_service, logger)
-    page_search_service = PageSearchService(alert_service, email_service)
+    page_search_service = PageSearchService(alert_service, email_service, logger)
     user_service = UserService()
 
     # send startup notification
