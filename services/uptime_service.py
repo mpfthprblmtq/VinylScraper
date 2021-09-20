@@ -15,6 +15,8 @@ class UptimeService:
         uptime_d = uptime_seconds // 86400
         uptime_h = uptime_seconds // 3600
         uptime_m = uptime_seconds // 60
+        if uptime_d > 0:
+            uptime_h = uptime_h - (uptime_d * 24)
         if uptime_h > 0:
             uptime_m = uptime_m - (uptime_h * 60)
 
