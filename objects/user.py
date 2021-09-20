@@ -28,7 +28,7 @@ def get_json_array(arr, space, end_space):
 class User:
     def __init__(self, username, email, urls, subreddits, keywords):
         self.username = username
-        self.email = join_email(email)
+        self.emails = join_email(email)
         self.urls = urls
         self.subreddits = subreddits
         self.keywords = keywords
@@ -38,7 +38,7 @@ class User:
     def to_string(self):
         return 'User: {\n' + \
                '\tusername: ' + self.username + \
-               '\n\temail: ' + self.email + \
+               '\n\temail: ' + self.emails + \
                '\n\turls: [' + get_json_array(self.urls, '\t\t', '\t') + ']' + \
                '\n\tsubreddits: [' + get_json_array(self.subreddits, '\t\t', '\t') + ']' + \
                '\n\tkeywords: [' + get_json_array(self.keywords, '\t\t', '\t') + ']' + \

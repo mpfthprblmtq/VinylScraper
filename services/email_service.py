@@ -106,21 +106,21 @@ class EmailService:
 
     # actually sends the email
     # returns the result of the send (a dictionary object)
-    #   email: the email to send to
+    #   email: the email to send to (can be either a list of emails or a string email)
     #   subject: the subject line of the email
     #   message_html: the message in html format
-    def send_email(self, email, subject, message_html):
+    def send_email(self, emails, subject, message_html):
         # build the email
         msg = MIMEMultipart()
         msg['Subject'] = subject
         msg['From'] = self.user_agent + ' ' + self.sender_email
-        msg['To'] = email
+        msg['To'] = ", ".join(emails) if isinstance(emails, list) else emails
         msg.attach(MIMEText(message_html, 'html'))
 
         # send the email
         with smtplib.SMTP_SSL('smtp.gmail.com', self.port) as server:
             server.login(self.sender_email, self.sender_email_password)
-            return server.sendmail(self.sender_email, [email], msg.as_string())
+            return server.sendmail(self.sender_email, emails if isinstance(emails, list) else [emails], msg.as_string())
 
     # sends reddit match email
     #   keyword: the keyword that was found
@@ -130,7 +130,7 @@ class EmailService:
         message_html = get_reddit_match_html(post, self.uptime_service.get())
         subject = f'VinylScraper: Match found! ({keyword})'
 
-        res = self.send_email(user.email, subject, message_html)
+        res = self.send_email(user.emails, subject, message_html)
         if res == {}:
             self.logger.info('EmailService', f'Successfully sent email on reddit match: {keyword}')
         else:
@@ -143,7 +143,7 @@ class EmailService:
         message_html = get_page_match_html(search, user, self.uptime_service.get())
         subject = f'VinylScraper: An item is available! ({search.product})'
 
-        res = self.send_email(user.email, subject, message_html)
+        res = self.send_email(user.emails, subject, message_html)
         if res == {}:
             self.logger.info('EmailService', f'Successfully sent email on page match: {search.product}')
         else:

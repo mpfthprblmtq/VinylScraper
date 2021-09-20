@@ -1,5 +1,6 @@
 # project specific
 app_info.txt
+log.log
 
 # Environments
 .env

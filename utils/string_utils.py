@@ -42,7 +42,10 @@ def remove_duplicates(arr):
 # joins a string representation of an email into an actual email
 #   email: the string to split into the email
 def join_email(email):
-    arr = email.split(',')
-    if len(arr) == 3:
-        return arr[0] + '@' + arr[1] + '.' + arr[2]
-    return email
+    emails = []
+    emails_arr = email.split(',')
+    for e in emails_arr:
+        arr = e.split('/')
+        if len(arr) == 3:
+            emails.append(arr[0] + '@' + arr[1] + '.' + arr[2])
+    return emails
