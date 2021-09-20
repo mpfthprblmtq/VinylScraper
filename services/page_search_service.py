@@ -1,5 +1,8 @@
 # imports
 import urllib.request
+import time
+
+from objects.found_item import FoundItem
 
 
 # gets the page content from the given url
@@ -27,9 +30,10 @@ def find_keyword(page_content, search_string):
 class PageSearchService:
 
     # init
-    def __init__(self, alert_service, email_service):
+    def __init__(self, alert_service, email_service, logger):
         self.alert_service = alert_service
         self.email_service = email_service
+        self.logger = logger
 
     # analyzes the pages
     # gets the page content, then checks if the keyword/key phrase exists in the page
@@ -38,4 +42,11 @@ class PageSearchService:
         for search_url in user.urls:
             content = get_page_content(search_url.url)
             if find_keyword(content, search_url.search_string):
-                self.email_service.send_page_match_email(search_url, user)
+                # check to see if we should alert
+                if self.alert_service.should_alert_on_page_search(search_url.url):
+                    # log what we found
+                    self.logger.info('PageSearchService', f'Match found ({search_url.product}), sending email')
+                    # send the match email
+                    self.email_service.send_page_match_email(search_url, user)
+                    # put the url in the already alerted array
+                    self.alert_service.already_alerted_pages.append(FoundItem(search_url.url, time.time()))
