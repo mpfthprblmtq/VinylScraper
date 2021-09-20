@@ -1,8 +1,6 @@
 username=mpfthprblmtq
-email=ripley307,gmail,com
+email=ripley307/gmail/com
 url=https://store.louisthechild.com/,Kids At Play,Kids At Play
-url=https://apashemerch.com/collections/vinyl/products/apashe-renaissance-vinyl,data-default-text="Addtocart">Addtocart</span>,Apashe - Renaissance Vinyl
-url=https://apashemerch.com/collections/official-merch/products/apashe-renaissance-vinyl,data-default-text="Addtocart">Addtocart</span>,Apashe - Renaissance Vinyl
 subreddits=VinylReleases,VinylCollectors,VinylDeals
 keywords=
 Mat Zo
