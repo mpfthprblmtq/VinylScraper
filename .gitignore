@@ -2,7 +2,10 @@
 app_info.txt
 log.log
 
-# Environments
+# pycharm specific
+.idea/
+
+# environments
 .env
 .venv
 env/
