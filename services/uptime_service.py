@@ -11,17 +11,20 @@ class UptimeService:
 
     # returns the uptime in ##d ##h ##m ##s format
     def get(self):
-        uptime_seconds = time.time() - self.start_time
-        uptime_d = uptime_seconds // 86400
-        uptime_h = uptime_seconds // 3600
-        uptime_m = uptime_seconds // 60
-        uptime_s = uptime_seconds
-        if uptime_d > 0:
-            uptime_h = uptime_h - (uptime_d * 24)
-        if uptime_h > 0:
-            uptime_m = uptime_m - (uptime_h * 60)
-        if uptime_m > 0:
-            uptime_s = uptime_m - (uptime_m * 60)
+        uptime_seconds = int(time.time() - self.start_time)
+        uptime_d = int(uptime_seconds // 86400)
+        uptime_h = int(uptime_seconds // 3600)
+        uptime_m = int(uptime_seconds // 60)
+        uptime_s = int(uptime_seconds)
 
-        return \
-            str(int(uptime_d)) + "d " + str(int(uptime_h)) + "h " + str(int(uptime_m)) + "m " + str(int(uptime_s)) + "s"
+        # do some modulus
+        if uptime_s >= 60:
+            uptime_s = uptime_s % 60
+        if uptime_m >= 60:
+            uptime_m = uptime_m % 60
+        if uptime_h >= 24:
+            uptime_h = uptime_h % 24
+
+        # make a string
+        formatted_string = str(uptime_d) + "d " + str(uptime_h) + "h " + str(uptime_m) + "m " + str(uptime_s) + "s"
+        return formatted_string
