@@ -61,17 +61,17 @@ def main():
 
         # uh oh
         except Exception as e:
-            if e.response is not None and e.response.status_code == 401:
+            if e.code == 401:
                 # check if it's a 401, which is probably just a config issue
                 logger.error('Main', f'Received a 401 response code from reddit')
                 email_service.send_shutdown_email(e, app_info.maintenance_email)
                 time.sleep(10)
                 quit()
-            elif e.response is not None and e.response.status_code == 404:
+            elif e.code == 404:
                 # this will probably happen for any 404s while page searching
-                logger.error('Main', f'Received a 404 response from a page searching')
+                logger.error('Main', f'Received a 404 response from a page searching: {e.filename}')
                 # just continue for now until I decide what to do
-            elif e.response is not None and e.response.status_code == 503:
+            elif e.code == 503:
                 # check if it's a 503, which means reddit is down
                 logger.error('Main', f'Received a 503 response code from reddit')
                 # we just want to continue in this case, because reddit will be up again soon... right?
