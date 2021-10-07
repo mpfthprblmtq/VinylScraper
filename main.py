@@ -70,6 +70,11 @@ def main():
             elif e.code == 404:
                 # this will probably happen for any 404s while page searching
                 logger.error('Main', f'Received a 404 response from a page searching: {e.filename}')
+                # find the url and delete since we don't want it anymore
+                for url in user.urls:
+                    if url.url == e.filename:
+                        user.urls.remove(url)
+                        break
                 # just continue for now until I decide what to do
             elif e.code == 503:
                 # check if it's a 503, which means reddit is down
