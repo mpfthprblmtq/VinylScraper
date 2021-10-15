@@ -1,6 +1,6 @@
 username=mpfthprblmtq
 email=ripley307/gmail/com
-url=https://store.louisthechild.com/,Kids At Play,Kids At Play
+url=https://store.louisthechild.com/products/kids-at-play-vinyl,AddToCart-product-template,Kids At Play Vinyl
 url=https://dabinmusic.com/collections/all-merch,Between Broken,Between Broken
 subreddits=VinylReleases,VinylCollectors,VinylDeals
 keywords=
