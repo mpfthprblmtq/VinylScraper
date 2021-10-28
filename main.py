@@ -61,6 +61,9 @@ def main():
 
         # uh oh
         except Exception as e:
+            if e.code == 103:
+                # fail silently
+                logger.error('Main', f'Received a 103 response from a page searching: {e.filename}')
             if e.code == 401:
                 # check if it's a 401, which is probably just a config issue
                 logger.error('Main', f'Received a 401 response code from reddit')
