@@ -2,6 +2,7 @@ username=mpfthprblmtq
 email=ripley307/gmail/com
 url=https://store.louisthechild.com/products/kids-at-play-vinyl,AddToCart-product-template,Kids At Play Vinyl
 url=https://dabinmusic.com/collections/all-merch,Between Broken,Between Broken
+url=https://animalsasleaders.org/collections/vinyl/products/parrhesia-cyan-and-clear-galaxy-vinyl,<span data-add-to-cart-text=""data-default-text="Pre-order">Pre-order</span>,AAL Galaxy Vinyl
 subreddits=VinylReleases,VinylCollectors,VinylDeals
 keywords=
 Mat Zo
