@@ -1,13 +1,8 @@
 username=mpfthprblmtq
 email=ripley307/gmail/com
-url=https://store.louisthechild.com/products/kids-at-play-vinyl,AddToCart-product-template,Kids At Play Vinyl
-url=https://dabinmusic.com/collections/all-merch,Between Broken,Between Broken
-url=https://animalsasleaders.org/collections/vinyl/products/parrhesia-cyan-and-clear-galaxy-vinyl,<span data-add-to-cart-text=""data-default-text="Pre-order">Pre-order</span>,AAL Galaxy Vinyl
-url=https://www.amazon.com/dp/B0148PQJLQ/ref=cm_sw_r_cp_api_glt_fabc_B9M6313JX9HVF7WYYBVF,<span class="a-size-base a-color-price a-color-price">,ODESZA - Light Vinyl
+url=https://dabinmusic.com/collections/all-merch,vinyl,Between Broken Vinyl
 subreddits=VinylReleases,VinylCollectors,VinylDeals
 keywords=
-Mat Zo
-Tracing Steps
 Apashe
 Deadmau5
 Devin Townsend
@@ -21,11 +16,8 @@ Illenium
 Yoe Mase
 Mako
 Twenty One Pilots
-Imagine Dragons
-Atoms for Peace
+The Smile
 Biffy Clyro
-Bloc Party
-A Weekend In The City
 Ekali
 Eden
 Grabbitz
