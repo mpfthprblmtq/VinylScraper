@@ -44,6 +44,7 @@ def main():
 
     # do forever
     while True:
+        user = None
         try:
             for user in user_service.get_users():
 
@@ -81,7 +82,7 @@ def main():
                 # just continue for now until I decide what to do
             elif e.code == 503:
                 # check if it's a 503, which means reddit is down
-                logger.error('Main', f'Received a 503 response code from reddit')
+                logger.error('Main', f'Received a 503 response code: {e.filename}')
                 # we just want to continue in this case, because reddit will be up again soon... right?
             else:
                 # catch all
