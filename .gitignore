@@ -1,6 +1,7 @@
 # project specific
-app_info.txt
+app_info.json
 log.log
+deploy.zip
 
 # pycharm specific
 .idea/

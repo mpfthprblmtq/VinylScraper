@@ -1,3 +1,6 @@
+# DEPRECATED WITH AWS LAMBDA
+# Keeping in for reference
+
 # imports
 import time
 

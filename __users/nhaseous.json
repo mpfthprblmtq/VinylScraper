@@ -1,0 +1,56 @@
+{
+  "user_info": {
+    "username": "nhaseous",
+    "emails": [
+      "nhat.ac/gmail/com",
+      "ripley307/gmail/com"
+    ]
+  },
+  "urls": [
+    {
+      "url": "https://shop.lane8music.com/products/rise-vinyl",
+      "keyword": "<span data-add-to-cart-text",
+      "product": "Lane 8 - Rise (Lane 8's shop)"
+    },
+    {
+      "url": "https://music.anjunabeats.com/release/79032-lane-8-rise",
+      "keyword": "<a href=\"#\" class=\"action-button buy-button buy-link  e-addTo-basket\" data-url=\"/rest/cart\" data-action=\"addTo\" data-category=\"basket\" data-itemtype=\"ReleaseFormat\" data-itemid=\"573330\"",
+      "product": "Lane 8 - Rise (Anjuna's Shop)"
+    }
+  ],
+  "twitter": [
+    {
+      "handle": "iamdabinlee",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "heyjaron",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "Yoe_mase",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "formerhero_",
+      "keywords": [
+        "vinyl"
+      ]
+    }
+  ],
+  "reddit": {
+    "subreddits": [
+      "VinylReleases",
+      "VinylCollectors"
+    ],
+    "keywords": [
+      "Lane 8"
+    ]
+  }
+}

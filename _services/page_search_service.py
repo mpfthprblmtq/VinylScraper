@@ -2,7 +2,7 @@
 import urllib.request
 import time
 
-from objects.found_item import FoundItem
+from _objects.found_item import FoundItem
 
 
 # gets the page content from the given url
@@ -41,12 +41,12 @@ class PageSearchService:
     def analyze_pages(self, user):
         for search_url in user.urls:
             content = get_page_content(search_url.url)
-            if find_keyword(content, search_url.search_string):
+            if find_keyword(content, search_url.keyword):
                 # check to see if we should alert
-                if self.alert_service.should_alert_on_page_search(search_url.url):
+                if self.alert_service.should_alert(search_url.url, 'pages'):
                     # log what we found
                     self.logger.info('PageSearchService', f'Match found ({search_url.product}), sending email')
                     # send the match email
                     self.email_service.send_page_match_email(search_url, user)
                     # put the url in the already alerted array
-                    self.alert_service.already_alerted_pages.append(FoundItem(search_url.url, time.time()))
+                    self.alert_service.add_found_item_to_list(FoundItem('pages', search_url.url, time.time()))

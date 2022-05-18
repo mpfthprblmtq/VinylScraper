@@ -1,0 +1,83 @@
+{
+  "user_info": {
+    "username": "mpfthprblmtq",
+    "emails": [
+      "ripley307/gmail/com"
+    ]
+  },
+  "urls": [
+    {
+      "url": "https://dabinmusic.com/collections/all-merch",
+      "keyword": "vinyl",
+      "product": "Between Broken Vinyl"
+    },
+    {
+      "url": "https://www.diggersfactory.com/vinyl/247868/mr-bill-phantasmagoria",
+      "keyword": ">Add to cart",
+      "product": "Phantasmagoria Vinyl"
+    }
+  ],
+  "twitter": [
+    {
+      "handle": "iamdabinlee",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "heyjaron",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "Yoe_mase",
+      "keywords": [
+        "vinyl"
+      ]
+    },
+    {
+      "handle": "formerhero_",
+      "keywords": [
+        "vinyl"
+      ]
+    }
+  ],
+  "reddit": {
+    "subreddits": [
+      "VinylReleases",
+      "VinylCollectors",
+      "VinylDeals"
+    ],
+    "keywords": [
+      "Deadmau5",
+      "Devin Townsend",
+      "Porter Robinson",
+      "Madeon",
+      "Dabin",
+      "Skrillex",
+      "Said the Sky",
+      "Flume",
+      "Illenium",
+      "Yoe Mase",
+      "Mako",
+      "Twenty One Pilots",
+      "The Smile",
+      "Biffy Clyro",
+      "Ekali",
+      "Eden",
+      "Grabbitz",
+      "Mitis",
+      "Missio",
+      "Raleigh Ritchie",
+      "You're A Man Now, Boy",
+      "Tristam",
+      "Emmit Fenn",
+      "Crywolf",
+      "Dead Battery",
+      "Odesza",
+      "EDM",
+      "Mr. Bill"
+    ]
+  }
+}

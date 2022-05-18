@@ -1,15 +1,13 @@
 # imports
 import smtplib
-import platform
-from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
 # returns formatted html for a match email
 #   post: the reddit post (contains the url, title, and description)
-#   uptime: the current uptime
-def get_reddit_match_html(post, uptime):
+#   user: the User to send the notification to
+def get_reddit_match_html(post, user):
     title = post.title
     url = post.url
     description = post.selftext
@@ -22,12 +20,11 @@ def get_reddit_match_html(post, uptime):
     <html>
         <head></head>
         <body>
+            <p>Hey {user.username}!</p>
             <p>VinylScraper is doing its job!  Found a post:</p>
             <p><b>Post title:</b><br> {title}<p>
             <p><b>{url_header}</b><br> {url}</p>
             <p><b>Post Description:</b><br> {description}</p>
-            <br>
-            <p><b>Uptime:</b> {uptime}</p>
         </body>
     </html>
     """
@@ -37,58 +34,40 @@ def get_reddit_match_html(post, uptime):
 # returns formatted html for page match email
 #   search: the SearchUrl that we found
 #   user: the User to send the notification to
-#   uptime: the current uptime
-def get_page_match_html(search, user, uptime):
+def get_page_match_html(search, user):
     msg = f"""\
         <html>
             <head></head>
             <body>
-                <p>Hey {user.username}, VinylScraper is doing its job!</p>
+                <p>Hey {user.username}!</p>
+                <p>VinylScraper is doing its job!</p>
                 <p><b>{search.product}</b> is either in stock or available!<p>
                 <br>
                 <p><b>URL to product:</b><br> {search.url}</p>
-                <br>
-                <p><b>Uptime:</b> {uptime}</p>
             </body>
         </html>
         """
     return msg
 
 
-# returns formatted html for a startup email
-def get_startup_html():
-    now = datetime.now()
-    dt_string = now.strftime("%m/%d/%Y %H:%M:%S")
-    return f"""\
-    <html>
-        <head></head>
-        <body>
-            <h3>Vinyl Scraper started up! ({platform.system()})</h3>
-            <p><b>Start time:</b> {dt_string}</p>
-        </body>
-    </html>
-    """
-
-
-# returns formatted html for a shutdown email
-#   e: the exception that occurred
-#   uptime: the current uptime
-def get_shutdown_html(e, uptime):
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    return f"""\
-    <html>
-        <head></head>
-        <body>
-            <h3>Vinyl Scraper shut down!</h3>
-            <p><b>End time:</b> {dt_string}</p>
-            <p><b>Uptime:</b> {uptime}</p>
-            <br>
-            <p><b>Exception Details:<b></p>
-            <p>{e}</p>
-        </body>
-    </html>
-    """
+# returns formatted html for twitter patch email
+#   found_keywords: the keywords that were found
+#   tweet: the tweet we found
+#   user: the User to send the notification to
+def get_twitter_match_html(found_keywords, tweet, user):
+    msg = f"""\
+        <html>
+            <head></head>
+            <body>
+                <p>Hey {user.username}!</p>
+                <p>VinylScraper is doing its job!</p>
+                <p>Found the keywords <b>{found_keywords}</b> in a tweet from {tweet.author_id}!<p>
+                <br>
+                <p><b>URL to tweet:</b><br> https://twitter.com/{tweet.author_id}/status/{tweet.id}</p>
+            </body>
+        </html>
+        """
+    return msg
 
 
 # service class for emailing things
@@ -97,15 +76,14 @@ class EmailService:
     port = 465
 
     # __init__
-    def __init__(self, sender_email, sender_email_password, user_agent, uptime_service, logger):
+    def __init__(self, sender_email, sender_email_password, user_agent, logger):
         self.sender_email = sender_email
         self.sender_email_password = sender_email_password
         self.user_agent = user_agent
-        self.uptime_service = uptime_service
         self.logger = logger
 
     # actually sends the email
-    # returns the result of the send (a dictionary object)
+    # returns the result of the email sending (a dictionary object)
     #   email: the email to send to (can be either a list of emails or a string email)
     #   subject: the subject line of the email
     #   message_html: the message in html format
@@ -127,8 +105,8 @@ class EmailService:
     #   post: the post where we found the match
     #   user: the user that the match was found for
     def send_reddit_match_email(self, keyword, post, user):
-        message_html = get_reddit_match_html(post, self.uptime_service.get())
-        subject = f'VinylScraper: Match found! ({keyword})'
+        message_html = get_reddit_match_html(post, user)
+        subject = f'VinylScraper: Reddit match found! ({keyword})'
 
         res = self.send_email(user.emails, subject, message_html)
         if res == {}:
@@ -136,11 +114,25 @@ class EmailService:
         else:
             self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
 
+    # sends twitter match email
+    #   found_keywords: the keywords that were found
+    #   tweet: the tweet that matched
+    #   user: the user that the match was found for
+    def send_twitter_match_email(self, found_keywords, tweet, user):
+        message_html = get_twitter_match_html(found_keywords, tweet, user)
+        subject = f'VinylScraper: Twitter match found! ({found_keywords})'
+
+        res = self.send_email(user.emails, subject, message_html)
+        if res == {}:
+            self.logger.info('EmailService', f'Successfully sent email on twitter match: {found_keywords}')
+        else:
+            self.logger.error('EmailService', f'Error in sending email on twitter match: {res}')
+
     # sends page match email
     #   search: the SearchUrl that we found
     #   user: the user that the match was found for
     def send_page_match_email(self, search, user):
-        message_html = get_page_match_html(search, user, self.uptime_service.get())
+        message_html = get_page_match_html(search, user)
         subject = f'VinylScraper: An item is available! ({search.product})'
 
         res = self.send_email(user.emails, subject, message_html)
@@ -148,28 +140,3 @@ class EmailService:
             self.logger.info('EmailService', f'Successfully sent email on page match: {search.product}')
         else:
             self.logger.error('EmailService', f'Error in sending email on reddit match: {res}')
-
-    # sends an email on startup
-    #   email: the email to send the startup email to
-    def send_startup_email(self, email):
-        message_html = get_startup_html()
-        subject = f'VinylScraper: Startup'
-
-        res = self.send_email(email, subject, message_html)
-        if res == {}:
-            self.logger.info('EmailService', f'Successfully sent startup email')
-        else:
-            self.logger.error('EmailService', f'Error in sending startup email: {res}')
-
-    # sends an email on shutdown
-    #   e: the exception that caused the shutdown
-    #   email: the email to send the shutdown email to
-    def send_shutdown_email(self, e, email):
-        message_html = get_shutdown_html(e, self.uptime_service.get())
-        subject = f'VinylScraper: Shutdown'
-
-        res = self.send_email(email, subject, message_html)
-        if res == {}:
-            self.logger.info('EmailService', f'Successfully sent shutdown email')
-        else:
-            self.logger.error('EmailService', f'Error in sending shutdown email: {res}')

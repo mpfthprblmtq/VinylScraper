@@ -1,5 +1,6 @@
-client_id=
-client_secret=
+reddit_client_id=
+reddit_client_secret=
+twitter_bearer_token=
 user_agent=
 sender_email=
 sender_email_password=
