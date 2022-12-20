@@ -48,6 +48,7 @@ class RedditService:
     def analyze_posts(self, user):
         # traverse the subreddits to search
         for subreddit in user.subreddits:
+            self.logger.info('RedditService', f'Searching subreddit r/{subreddit}')
             # get the posts from that subreddit
             posts = self.get_new_posts(subreddit, 10)
             # traverse through all the posts we got

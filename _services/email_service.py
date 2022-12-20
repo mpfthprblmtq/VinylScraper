@@ -54,16 +54,16 @@ def get_page_match_html(search, user):
 #   found_keywords: the keywords that were found
 #   tweet: the tweet we found
 #   user: the User to send the notification to
-def get_twitter_match_html(found_keywords, tweet, user):
+def get_twitter_match_html(found_keywords, tweet, handle, user):
     msg = f"""\
         <html>
             <head></head>
             <body>
                 <p>Hey {user.username}!</p>
                 <p>VinylScraper is doing its job!</p>
-                <p>Found the keywords <b>{found_keywords}</b> in a tweet from {tweet.author_id}!<p>
+                <p>Found the keywords <b>{found_keywords}</b> in a tweet from {handle}!<p>
                 <br>
-                <p><b>URL to tweet:</b><br> https://twitter.com/{tweet.author_id}/status/{tweet.id}</p>
+                <p><b>URL to tweet:</b><br> https://twitter.com/{handle}/status/{tweet.id}</p>
             </body>
         </html>
         """
@@ -118,8 +118,8 @@ class EmailService:
     #   found_keywords: the keywords that were found
     #   tweet: the tweet that matched
     #   user: the user that the match was found for
-    def send_twitter_match_email(self, found_keywords, tweet, user):
-        message_html = get_twitter_match_html(found_keywords, tweet, user)
+    def send_twitter_match_email(self, found_keywords, tweet, handle, user):
+        message_html = get_twitter_match_html(found_keywords, tweet, handle, user)
         subject = f'VinylScraper: Twitter match found! ({found_keywords})'
 
         res = self.send_email(user.emails, subject, message_html)

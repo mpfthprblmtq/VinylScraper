@@ -36,7 +36,8 @@ class UserService:
             reddit_dict = json_data['reddit']
             twitter_profiles = []
             for twitter_profile in json_data['twitter']:
-                twitter_profiles.append(TwitterProfile(twitter_profile['handle'], twitter_profile['keywords']))
+                twitter_profiles.append(
+                    TwitterProfile(twitter_profile['handle'], twitter_profile['name'], twitter_profile['keywords']))
             self.users.append(User(
                 username,
                 emails,

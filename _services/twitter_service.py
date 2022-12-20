@@ -34,19 +34,22 @@ class TwitterService:
     def search_tweets(self, user):
         # traverse the twitter profiles to search on
         for twitter_profile in user.twitter_profiles:
+            self.logger.info('TwitterService', f'Searching for tweets from {twitter_profile.name} (@{twitter_profile.handle})')
             # get the 10 most recent tweets from that user
             tweets = self.get_recent_posts(twitter_profile.handle)
-            # traverse through all the tweets we got
-            for tweet in tweets.data:
-                # check to see if we found a match
-                found_keywords = find_keyword(twitter_profile.keywords, tweet.text)
-                if found_keywords:
-                    # check to see if we should alert
-                    if self.alert_service.should_alert(tweet.id, 'twitter'):
-                        # log what we found
-                        self.logger.info('TwitterService',
-                                         f'Match found ({prettify_array(found_keywords)}), sending email!')
-                        # send the match email
-                        self.email_service.send_twitter_match_email(prettify_array(found_keywords), tweet, user)
-                        # put the tweet in the already alerted array
-                        self.alert_service.add_found_item_to_list(FoundItem('twitter', tweet.id, time.time()))
+            # if we get tweets back (account could be private)
+            if tweets.data:
+                # traverse through all the tweets we got
+                for tweet in tweets.data:
+                    # check to see if we found a match
+                    found_keywords = find_keyword(twitter_profile.keywords, tweet.text)
+                    if found_keywords:
+                        # check to see if we should alert
+                        if self.alert_service.should_alert(tweet.id, 'twitter'):
+                            # log what we found
+                            self.logger.info('TwitterService',
+                                             f'Match found ({prettify_array(found_keywords)}), sending email!')
+                            # send the match email
+                            self.email_service.send_twitter_match_email(prettify_array(found_keywords), tweet, twitter_profile.handle, user)
+                            # put the tweet in the already alerted array
+                            self.alert_service.add_found_item_to_list(FoundItem('twitter', tweet.id, time.time()))

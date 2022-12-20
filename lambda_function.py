@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         app_info.sender_email_password,
         app_info.user_agent,
         logger)
-    alert_service = AlertService()
+    alert_service = AlertService(logger)
     reddit_service = RedditService(
         app_info.reddit_client_id,
         app_info.reddit_client_secret,

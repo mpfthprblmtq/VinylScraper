@@ -3,6 +3,7 @@ import time
 import json
 import boto3
 from _objects.found_item import FoundItem
+from datetime import datetime
 
 
 # checks the list of FoundItems given to see if the item with that keyword exists in the list
@@ -29,14 +30,25 @@ class AlertService:
     KEY = 'already_alerted.json'
     S3 = boto3.client('s3')
 
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.get_all_already_alerted()
+        # self.log_already_alerted()
         self.purge_already_alerted()
+        # pass
+
+    # def log_already_alerted(self):
+    #     msg = 'Already alerted items:\n'
+    #     for item in self.already_alerted:
+    #         msg += item.found_type + ', '
+    #         msg += str(item.keyword) + ', '
+    #         msg += str(datetime.fromtimestamp(item.time_found))
+    #         msg += '\n'
 
     # purges all already found elements older than one month
     def purge_already_alerted(self):
         for item in self.already_alerted:
-            if time.time() - item.time_found > 2629746:
+            if time.time() - item.time_found > self.PURGE_WINDOW_S:
                 self.already_alerted.remove(item)
         self.write_all_already_alerted()
 

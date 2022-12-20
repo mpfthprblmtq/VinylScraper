@@ -40,6 +40,7 @@ class PageSearchService:
     #   user: the user with the urls to search for
     def analyze_pages(self, user):
         for search_url in user.urls:
+            self.logger.info('PageSearchService', f'Searching url {search_url.url}')
             content = get_page_content(search_url.url)
             if find_keyword(content, search_url.keyword):
                 # check to see if we should alert
