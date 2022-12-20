@@ -1,9 +1,9 @@
 {
-  "reddit_client_id": "qDiBkT1tCTx3mPBmy7xw3A",
-  "reddit_client_secret": "ECWXP95GeDl551eRk1Y34h_YX_L2Hg",
-  "twitter_bearer_token": "AAAAAAAAAAAAAAAAAAAAAKwscAEAAAAAo5YxvP%2FMtC3pYuJM%2BS24cCaBkjA%3DEtfHIMRY7zBEdEnq8HKAGvXAe35vx9dMtkged5MnkCUxNLAXEH",
-  "user_agent": "VinylScraper",
-  "sender_email": "vinyl.scraper/gmail/com",
-  "sender_email_password": "whoopwhoop",
-  "maintenance_email": "ripley307/gmail/com"
+  "reddit_client_id": "",
+  "reddit_client_secret": "",
+  "twitter_bearer_token": "",
+  "user_agent": "",
+  "sender_email": "",
+  "sender_email_password": "",
+  "maintenance_email": ""
 }
